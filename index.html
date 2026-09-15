@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prior Elicitation, Forschungszulage RCT</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #1e3a8a;
+      --blue:   #2563eb;
+      --blue-lt:#dbeafe;
+      --blue-xs:#eff6ff;
+      --slate:  #475569;
+      --muted:  #94a3b8;
+      --border: #e2e8f0;
+      --bg:     #f8fafc;
+      --white:  #ffffff;
+      --green:  #16a34a;
+      --green-lt:#dcfce7;
+      --amber-lt:#fef9c3;
+      --amber:  #92400e;
+      --red:    #dc2626;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: #1e293b;
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .page { display: none; flex-direction: column; min-height: 100vh; }
+    .page.active { display: flex; }
+
+    .hdr {
+      background: var(--navy);
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .hdr-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .hdr-sub   { font-size: 11px; opacity: .65; margin-top: 2px; }
+
+    .prog-wrap { height: 3px; background: var(--border); flex-shrink: 0; }
+    .prog-bar  { height: 100%; background: var(--blue); transition: width .3s; }
+
+    .steps { display: flex; gap: 5px; align-items: center; }
+    .step  { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.35); }
+    .step.done   { background: rgba(255,255,255,.7); }
+    .step.active { background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+
+    .content {
+      flex: 1;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+
+    h1 { font-size: 22px; font-weight: 600; color: var(--navy); margin-bottom: 8px; letter-spacing: -.02em; }
+    h2 { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+    h3 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    p  { color: var(--slate); line-height: 1.65; }
+
+    .q-box {
+      background: var(--blue-xs);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 6px 6px 0;
+      padding: 14px 18px;
+      margin-bottom: 6px;
+      color: #1e293b;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .q-box p + p { margin-top: 8px; }
+    .hint { font-size: 12px; color: var(--muted); margin-bottom: 18px; margin-top: 6px; }
+
+    .example-box {
+      background: var(--blue-xs);
+      border: 1px solid var(--blue-lt);
+      border-radius: 7px;
+      padding: 14px 16px;
+      margin: 10px 0 18px;
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+    .example-box strong { color: #1e293b; }
+    .example-box ul { margin: 8px 0 8px 18px; }
+    .example-box li { margin-bottom: 3px; }
+
+    .ctr {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .ctr-lbl { font-size: 13px; color: var(--slate); }
+    .ctr-num { font-size: 20px; font-weight: 700; color: var(--navy); min-width: 26px; }
+    .ctr-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .ctr-bar    { height: 100%; background: var(--blue); border-radius: 3px; transition: width .2s; }
+    .ctr-done   { font-size: 12px; font-weight: 600; color: var(--green); white-space: nowrap; }
+
+    .bins-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+      /* fading edge shadows that shrink to nothing once you've scrolled
+         all the way in that direction, a visual cue that there is more
+         to see without needing extra markup */
+      background-color: var(--bg);
+      background-repeat: no-repeat;
+      background-size: 36px 100%, 36px 100%, 14px 100%, 14px 100%;
+      background-position: left center, right center, left center, right center;
+      background-attachment: local, local, scroll, scroll;
+      background-image:
+        linear-gradient(to right, var(--bg) 40%, rgba(248,250,252,0)),
+        linear-gradient(to left,  var(--bg) 40%, rgba(248,250,252,0)),
+        linear-gradient(to right, rgba(30,58,138,.16), rgba(30,58,138,0)),
+        linear-gradient(to left,  rgba(30,58,138,.16), rgba(30,58,138,0));
+    }
+    .bins-wrap::-webkit-scrollbar { display: none; }
+
+    /* Custom scrollbar, drawn ourselves so it is always visible and
+       never depends on the OS or browser hiding/fading a native one. */
+    .fake-scrollbar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-top: 10px;
+      position: relative;
+      cursor: pointer;
+    }
+    .fake-scrollbar-thumb {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      background: var(--blue);
+      border-radius: 4px;
+      min-width: 24px;
+      cursor: grab;
+    }
+    .fake-scrollbar-thumb:active { cursor: grabbing; background: var(--navy); }
+    .bin-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 74px; }
+    .bin-box {
+      width: 56px;
+      height: 224px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      padding: 3px 3px 3px;
+      gap: 1px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .bin-box:hover           { border-color: var(--blue); background: var(--blue-xs); }
+    .bin-box.at-max          { cursor: default; }
+    .bin-box.at-max:hover    { border-color: var(--border); background: var(--bg); }
+    .stone {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--navy);
+      flex-shrink: 0;
+      opacity: .82;
+      cursor: pointer;
+      transition: transform .1s, opacity .1s;
+    }
+    .stone:hover { transform: scale(1.25); opacity: 1; }
+    .bin-count { font-size: 15px; font-weight: 700; color: var(--navy); margin: 4px 0 2px; }
+    .bin-btns  { display: flex; gap: 3px; margin-bottom: 4px; }
+    .bin-btn {
+      width: 24px; height: 20px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--slate);
+      font-size: 13px;
+      cursor: pointer;
+      line-height: 1;
+      transition: background .1s;
+    }
+    .bin-btn:hover { background: var(--bg); }
+    .bin-lbl {
+      font-size: 10px;
+      color: var(--slate);
+      text-align: center;
+      max-width: 74px;
+      line-height: 1.3;
+      white-space: pre-line;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 500; color: var(--slate); margin-bottom: 4px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 5px;
+      font-size: 14px; color: #1e293b; background: var(--white);
+      transition: border-color .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+    .field textarea { resize: vertical; min-height: 90px; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-lt);
+    }
+    .radio-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .radio-row input { width: auto; margin: 0; }
+    .radio-row label { margin: 0; font-size: 13px; color: #1e293b; font-weight: 400; }
+    .check-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; }
+    .check-row input { width: auto; margin-top: 3px; }
+    .check-row label { font-size: 12px; color: var(--slate); font-weight: 400; line-height: 1.55; }
+
+    .btn-p {
+      padding: 9px 22px;
+      border-radius: 6px; border: none;
+      background: var(--navy); color: #fff;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-p:hover    { background: var(--blue); }
+    .btn-p:disabled { background: var(--border); cursor: not-allowed; }
+    .btn-s {
+      padding: 9px 18px;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: var(--white); color: var(--slate);
+      font-size: 14px; cursor: pointer; transition: background .15s;
+    }
+    .btn-s:hover { background: var(--bg); }
+    .btn-danger { color: var(--red); }
+
+    .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; }
+
+    .hero { text-align: center; padding: 16px 0 28px; }
+    .hero h1 { font-size: 24px; margin-bottom: 10px; }
+    .hero p   { max-width: 520px; margin: 0 auto 22px; font-size: 14px; }
+    .info-box {
+      background: var(--blue-xs);
+      border: 1px solid var(--blue-lt);
+      border-radius: 7px;
+      padding: 13px 16px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.65;
+      text-align: left;
+    }
+    .info-box strong { color: #1e293b; }
+
+    .sum-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 12px; }
+    .sum-lbl  { width: 128px; text-align: right; color: var(--muted); flex-shrink: 0; }
+    .sum-bg   { flex: 1; height: 12px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .sum-fill { height: 100%; background: var(--blue); border-radius: 3px; }
+    .sum-n    { width: 22px; font-weight: 600; color: var(--slate); }
+
+    .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+    .b-academic     { background: var(--blue-lt); color: var(--navy); }
+    .b-policy       { background: var(--amber-lt); color: var(--amber); }
+    .b-practitioner { background: var(--green-lt); color: #14532d; }
+    .b-other        { background: var(--bg); color: var(--slate); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { text-align: left; padding: 8px 10px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 500; }
+    td { padding: 7px 10px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
+
+    .agg-row  { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .agg-lbl  { font-size: 11px; color: var(--slate); text-align: right; width: 130px; flex-shrink: 0; }
+    .agg-bg   { flex: 1; height: 14px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .agg-fill { height: 100%; background: var(--blue); border-radius: 3px; transition: width .4s; }
+    .agg-pct  { font-size: 11px; color: var(--muted); width: 32px; text-align: right; }
+
+    .stat-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+    .stat-num { font-size: 26px; font-weight: 700; color: var(--navy); }
+    .stat-lbl { font-size: 11px; color: var(--muted); }
+
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 8px;
+      padding: 22px 24px; width: 300px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.18);
+    }
+    .modal h3 { margin-bottom: 12px; }
+    .modal input {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 5px;
+      font-size: 14px; margin-bottom: 6px;
+    }
+    .modal-err { font-size: 12px; color: var(--red); margin-bottom: 8px; display: none; }
+    .modal-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--blue-lt);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+    @media (max-width: 600px) {
+      .content { padding: 20px 16px 40px; }
+      .hdr { padding: 12px 16px; }
+      .bins-wrap { gap: 5px; }
+      .bin-col { width: 60px; }
+      .bin-box { width: 46px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Admin access</h3>
+    <input type="password" id="pwd-input" placeholder="Enter admin code"
+           onkeydown="if(event.key==='Enter')checkAdmin()">
+    <div class="modal-err" id="pwd-err">Incorrect code.</div>
+    <div class="modal-btns">
+      <button class="btn-s" onclick="closeModal()">Cancel</button>
+      <button class="btn-p" onclick="checkAdmin()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div class="page active" id="pg-welcome">
+  <div class="prog-wrap"><div class="prog-bar" style="width:0%"></div></div>
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">Prior Elicitation Survey</div>
+      <div class="hdr-sub">Forschungszulage Start-Up RCT, Iacovone, McKenzie &amp; Meager (Econometrica 2025)</div>
+    </div>
+    <div style="font-size:11px;opacity:.6;text-align:right">Nils Handler<br>University of Zurich</div>
+  </div>
+  <div class="content">
+    <div class="hero">
+      <h1>German Research Allowance Start-Up Pilot</h1>
+      <p>We would like to learn what you expect the effects of this pilot to be, before any outcome data exist. Your answers will be pre-registered and reported alongside the results as one of several priors, following the Bayesian approach of Iacovone, McKenzie and Meager (<em>Econometrica</em>, 2025).</p>
+      <button class="btn-p" onclick="goto('pg-instructions')">Start survey &rarr;</button>
+    </div>
+    <div class="info-box">
+      <strong>The research allowance.</strong> Germany's R&amp;D tax credit (FZulG) is volume based and non selective. Any firm carrying out qualifying R&amp;D is entitled to it, worth 25% of eligible R&amp;D personnel and contract R&amp;D costs, rising to 35% for SMEs. Loss making firms receive it as a cash payout. Claiming it requires certification by the BSFZ, which rejects roughly 20 to 25% of claimed expenditure. Take up remains well below the eligible population, and start ups are the most under represented group. The working hypothesis of this study is that the binding constraint is the fixed cost of producing a credible first draft, not the size of the subsidy.
+    </div>
+    <div class="info-box">
+      <strong>The pilot.</strong> 500 eligible German start ups have been randomly assigned to two groups of 250. Both groups receive a LinkedIn outreach message. The 250 firms in the <strong>control group</strong> receive a link to the official BSFZ information page and nothing else. The 250 firms in the <strong>treatment group</strong> receive the same message plus a button offering a pre-filled draft project description, generated from public information about the firm. A draft is written only for firms that click. Neither group receives money, consulting hours, or privileged treatment at BSFZ.
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="page" id="pg-instructions">
+  <div class="prog-wrap"><div class="prog-bar" style="width:6%"></div></div>
+  <div class="hdr">
+    <div><div class="hdr-title">How to answer</div></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <h2>Allocating your 20 stones</h2>
+      <p>For each question, imagine you have 20 stones to allocate across a set of ranges, based on how likely you think it is that the true value falls in each range. One stone represents 5%, or 1 chance out of 20.</p>
+      <p style="margin-top:10px">If you place no stones in a range, you are saying you are sure the outcome will not fall there. The more stones you place in a range, the more likely you think that outcome is. Ten stones in one range means you think it is just as likely as not (fifty fifty). All 20 stones in one range means you are certain. There is no right or wrong answer, we just want to know what you think.</p>
+      <h3 style="margin-top:18px">Worked example</h3>
+      <p style="margin-bottom:8px">Suppose we ask your beliefs about how many of the next seven days it will rain in Chicago, and you place your stones like this.</p>
+      <table>
+        <thead><tr><th></th><th>0 days</th><th>1 day</th><th>2 days</th><th>3 days</th><th>4 days</th><th>5 days</th><th>6 days</th><th>7 days</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--slate)">Stones</td><td>0</td><td>0</td><td>1</td><td>2</td><td>4</td><td>5</td><td>5</td><td>3</td></tr>
+          <tr><td style="color:var(--slate)">Implied probability</td><td>0%</td><td>0%</td><td>5%</td><td>10%</td><td>20%</td><td>25%</td><td>25%</td><td>15%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px">This would mean you think there is zero chance it does not rain at all or rains on only one day, a 5% chance it rains on exactly two days, a 20% chance it rains on four days, and a 15% chance it rains every single day of the week.</p>
+    </div>
+    <div class="nav">
+      <button class="btn-s" onclick="goto('pg-welcome')">&larr; Back</button>
+      <button class="btn-p" onclick="goto('pg-about')">Next &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="pg-about">
+  <div class="prog-wrap"><div class="prog-bar" style="width:12%"></div></div>
+  <div class="hdr">
+    <div><div class="hdr-title">About you, Step 1 of 8</div></div>
+    <div class="steps" id="steps-about"></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <h2>About you</h2>
+      <p style="margin-bottom:16px;font-size:13px">Optional, this helps us interpret differences across respondents.</p>
+      <div class="field">
+        <label>Which best describes your role?</label>
+        <div class="radio-row"><input type="radio" name="role" id="role-academic" value="academic" checked onchange="toggleOtherRole()"><label for="role-academic">Academic researcher</label></div>
+        <div class="radio-row"><input type="radio" name="role" id="role-policy" value="policy" onchange="toggleOtherRole()"><label for="role-policy">Policymaker or public administration</label></div>
+        <div class="radio-row"><input type="radio" name="role" id="role-practitioner" value="practitioner" onchange="toggleOtherRole()"><label for="role-practitioner">Practitioner, advisor, or industry</label></div>
+        <div class="radio-row"><input type="radio" name="role" id="role-other" value="other" onchange="toggleOtherRole()"><label for="role-other">Other</label></div>
+      </div>
+      <div class="field" id="other-role-field" style="display:none">
+        <label>Please specify</label>
+        <input type="text" id="f-role-other" placeholder="Your role">
+      </div>
+      <div class="field">
+        <label>Name (optional)</label>
+        <input type="text" id="f-name" placeholder="Leave blank to stay anonymous">
+      </div>
+      <div class="field">
+        <label>Affiliation (optional)</label>
+        <input type="text" id="f-affil" placeholder="Leave blank to stay anonymous">
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="f-consent">
+        <label for="f-consent">I am happy for my name and affiliation to be stored with my answers and used for robustness checks that drop one respondent at a time. If left unticked, my answers are kept anonymous.</label>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-s" onclick="goto('pg-instructions')">&larr; Back</button>
+      <button class="btn-p" onclick="goto('q1')">Next &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="page" id="pg-done">
+  <div class="prog-wrap"><div class="prog-bar" style="width:100%"></div></div>
+  <div class="hdr">
+    <div><div class="hdr-title">Response recorded</div></div>
+  </div>
+  <div class="content" style="text-align:center">
+    <div style="font-size:44px;margin:8px 0 10px">&#10003;</div>
+    <h1 style="margin-bottom:6px">Response saved</h1>
+    <p style="margin-bottom:28px">Your priors have been recorded. Aggregate results will be shared after the trial concludes.</p>
+    <div id="done-status" style="max-width:520px;margin:0 auto 20px"></div>
+    <div id="done-summary" style="text-align:left;max-width:520px;margin:0 auto 28px"></div>
+    <button class="btn-s" onclick="newResponse()">New response (next respondent)</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="pg-admin">
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">Admin, collected responses</div>
+      <div class="hdr-sub">Prior elicitation data, Forschungszulage RCT</div>
+    </div>
+    <button class="btn-s" onclick="goto('pg-welcome')" style="font-size:13px">&larr; Exit</button>
+  </div>
+  <div class="content" id="admin-body"><p>Loading&hellip;</p></div>
+</div>
+
+<script>
+/* =====================================================================
+   SETUP REQUIRED BEFORE YOU PUBLISH THIS PAGE
+   ---------------------------------------------------------------------
+   This page currently only saves to localStorage, meaning each device
+   only ever sees its own submissions. Fill in one or both of the
+   options below so responses reach you from every device that opens
+   the page, not just your own.
+
+   OPTION A. Straight to your inbox, easiest, no account needed.
+   Set FORMSUBMIT_EMAIL to your email address, every submission is
+   emailed to you via formsubmit.co. First use needs one confirmation
+   click in an email they send you.
+
+   OPTION B. A Google Sheet you own, via Apps Script.
+   Set WEBHOOK_URL to a deployed Apps Script Web App's URL. Use a
+   separate Google Sheet and Apps Script project from any other survey,
+   so the two don't mix data.
+   ===================================================================== */
+const CONFIG = {
+  FORMSUBMIT_EMAIL: 'elina.stuessi@uzh.ch',
+  WEBHOOK_URL: 'https://script.google.com/macros/s/AKfycbxZ-NUNi9JkWNzPuy0kq4erZtTnwY62N2C1IAX6CUkt31ZHw5dSO_05a-QbVlADLadt4w/exec'
+};
+
+const TOTAL = 20;
+const CODE  = 'forschung2026';
+const STEP_TOTAL = 8;
+
+const TASKS = [
+  {
+    id: 'q1', step: 2,
+    title: 'Question 1, baseline application rate',
+    intro: '<p>The 250 firms in the control group receive only the standard outreach message. They remain free to apply for the research allowance exactly as they would have anyway.</p>' +
+      '<p style="margin-top:8px">Please allocate 20 stones into the ranges below, according to how likely you think it is that the <strong>percentage of these 250 control firms submitting a BSFZ certification application within six months</strong> lies in each range.</p>',
+    hint: 'Each stone = 5% probability mass, 20 stones total. Ranges are shares of the 250 control firms.',
+    bins: ['0 to 1','2 to 3','4 to 5','6 to 7','8 to 9','10 to 11','12 to 13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 50','51 to 60','61 to 70','71 to 80','81 to 90','91 to 100'],
+    prev: 'pg-about'
+  },
+  {
+    id: 'q2', step: 3,
+    title: 'Question 2, opt in among those offered the draft',
+    intro: '<p>250 firms have been assigned to the treatment group, meaning their message carries the button offering a pre-filled draft. A draft is written only for those who click.</p>' +
+      '<p style="margin-top:8px">Please allocate 20 stones according to how likely you think it is that the <strong>number of firms out of the 250 in the treatment group that click the button and request a draft</strong> lies in each range.</p>',
+    hint: 'Each stone = 5% probability mass, 20 stones total. Ranges are shares of the 250 treatment firms.',
+    bins: ['0 to 5','6 to 10','11 to 15','16 to 20','21 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 55','56 to 60','61 to 65','66 to 70','71 to 75','76 to 80','81 to 85','86 to 90','91 to 95','96 to 100'],
+    prev: 'q1'
+  },
+  {
+    id: 'q3', step: 4,
+    title: 'Question 3, impact on whether firms submit an application',
+    intro: '<p>We now ask about the likely impact of the offer for the treatment firms compared to the control firms. In technical terms this is the intention to treat effect (ITT), the effect of being offered the draft regardless of whether a firm clicks the button or uses what it receives. It is the difference in mean outcomes between the 250 offered firms and the 250 firms that are not.</p>' +
+      '<div class="example-box"><strong>Worked example.</strong> Suppose the 250 treatment firms break down as follows.' +
+      '<ul><li>160 firms never open the message, 4% apply anyway, giving 6.4 applications</li>' +
+      '<li>40 firms open the message but do not click, 5% apply, giving 2 applications</li>' +
+      '<li>30 firms click and do nothing further, 7% apply, giving 2.1 applications</li>' +
+      '<li>20 firms click and work with the draft, 60% apply, giving 12 applications</li></ul>' +
+      'The treatment application rate is (6.4 + 2 + 2.1 + 12) divided by 250, which is 9.0%. If the control group applies at 4%, the intention to treat effect is 9.0 minus 4.0, plus 5.0 percentage points.</div>' +
+      '<p>This question asks about the primary outcome, whether BSFZ records a certification application within six months of first contact, measured by application date. Where a single number is shown, for example 7, treat it as the interval 7.0 to 7.99.</p>',
+    hint: 'Each stone = 5% probability mass, 20 stones total. The scale starts at 0, place stones there to the extent you think the offer makes no difference or makes things worse.',
+    bins: ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 60','>60'],
+    extra: { id: 'q3_min', label: 'What is the minimum effect size, in percentage points, you would want to see before recommending this be rolled out to the full population of eligible start ups?', placeholder: 'e.g. 8' },
+    prev: 'q2'
+  },
+  {
+    id: 'q4', step: 5,
+    title: 'Question 4, impact on whether firms obtain certification',
+    intro: '<p>Applying is not the same as succeeding. A concern with lowering the cost of applying is that it may generate weak applications that BSFZ refuses, imposing review costs without producing any credit.</p>' +
+      '<p style="margin-top:8px">This question asks about certifications granted rather than applications submitted, again over six months and counted over all 250 firms in each group. Use the same intention to treat logic as the previous question.</p>',
+    hint: 'Each stone = 5% probability mass, 20 stones total. The scale starts at 0, place stones there to the extent you think the offer makes no difference or makes things worse.',
+    bins: ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 60','>60'],
+    extra: { id: 'q4_min', label: 'What is the minimum effect size, in percentage points, you would want to see before recommending this be rolled out?', placeholder: 'e.g. 8' },
+    prev: 'q3'
+  },
+  {
+    id: 'q5', step: 6,
+    title: 'Question 5, impact on the success rate among applicants',
+    intro: '<p>The previous two questions were about all 250 firms in each group. This one is about applicants only, of the firms that do submit an application, what share obtain certification?</p>' +
+      '<p style="margin-top:8px">If the draft helps founders describe genuinely qualifying work more clearly, this share should rise. If it mainly encourages marginal firms to try their luck, it should fall. A negative answer here is entirely compatible with a positive answer to Question 3.</p>',
+    hint: 'Each stone = 5% probability mass, 20 stones total.',
+    bins: ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 60','>60'],
+    prev: 'q4'
+  },
+  {
+    id: 'q6', step: 7,
+    title: 'Question 6, which firms respond',
+    intro: '<p>Imagine ranking the 250 treatment firms by how likely they would have been to apply had they never received the offer, then ranking them again by how likely they are to apply having received it.</p>' +
+      '<p style="margin-top:8px">If you think the same firms sit at the top of both rankings, so the draft mainly accelerates firms who were going to apply anyway, the correlation is close to 1. If you think the draft reaches an entirely different set of firms from those who would have applied unaided, the correlation is close to 0 or negative.</p>',
+    hint: 'Each stone = 5% probability mass, 20 stones total.',
+    bins: ['-1.00 to -0.91','-0.90 to -0.81','-0.80 to -0.71','-0.70 to -0.61','-0.60 to -0.51','-0.50 to -0.41','-0.40 to -0.31','-0.30 to -0.21','-0.20 to -0.11','-0.10 to -0.01','0 to 0.10','0.11 to 0.20','0.21 to 0.30','0.31 to 0.40','0.41 to 0.50','0.51 to 0.60','0.61 to 0.70','0.71 to 0.80','0.81 to 0.90','0.91 to 1.00'],
+    prev: 'q5'
+  }
+];
+const TASKS_BY_ID = {};
+TASKS.forEach(t => TASKS_BY_ID[t.id] = t);
+
+let ST = {};
+TASKS.forEach(t => ST[t.id] = new Array(t.bins.length).fill(0));
+
+function tot(id) { return ST[id].reduce((a, b) => a + b, 0); }
+
+// ── Navigation ──────────────────────────────────────────────────────────
+function goto(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (TASKS_BY_ID[id]) {
+    syncTask(id);
+    syncFakeScrollbar(id);
+  }
+  if (id === 'pg-admin') renderAdmin();
+}
+
+function toggleOtherRole() {
+  const isOther = document.getElementById('role-other').checked;
+  document.getElementById('other-role-field').style.display = isOther ? 'block' : 'none';
+}
+
+// ── Bins ────────────────────────────────────────────────────────────────
+function buildBins(id) {
+  const cfg = TASKS_BY_ID[id];
+  const wrap = document.getElementById('bw-' + id);
+  wrap.innerHTML = '';
+  cfg.bins.forEach((lbl, bi) => {
+    const col  = el('div', 'bin-col');
+    const box  = el('div', 'bin-box');
+    box.id     = 'box_' + id + '_' + bi;
+    box.onclick = () => add(id, bi);
+
+    const cnt  = el('div', 'bin-count');
+    cnt.id     = 'bc_' + id + '_' + bi;
+    cnt.textContent = '0';
+
+    const btns = el('div', 'bin-btns');
+    const bm   = el('button', 'bin-btn'); bm.textContent = '\u2212';
+    bm.onclick = e => { e.stopPropagation(); rem(id, bi); };
+    const bp   = el('button', 'bin-btn'); bp.textContent = '+';
+    bp.onclick = e => { e.stopPropagation(); add(id, bi); };
+    btns.append(bm, bp);
+
+    const label = el('div', 'bin-lbl');
+    label.textContent = lbl;
+
+    col.append(box, cnt, btns, label);
+    wrap.appendChild(col);
+  });
+}
+
+function syncTask(id) {
+  const cfg = TASKS_BY_ID[id];
+  cfg.bins.forEach((_, bi) => refreshBox(id, bi));
+  updateCtr(id);
+}
+
+function refreshBox(id, bi) {
+  const box = document.getElementById('box_' + id + '_' + bi);
+  const cnt = document.getElementById('bc_' + id + '_' + bi);
+  if (!box) return;
+  box.querySelectorAll('.stone').forEach(s => s.remove());
+  const n = ST[id][bi];
+  for (let i = 0; i < n; i++) {
+    const s = el('div', 'stone');
+    s.title   = 'Click to remove';
+    s.onclick = e => { e.stopPropagation(); rem(id, bi); };
+    box.appendChild(s);
+  }
+  if (cnt) cnt.textContent = n;
+  box.classList.toggle('at-max', tot(id) >= TOTAL);
+}
+
+function add(id, bi) {
+  if (tot(id) >= TOTAL) return;
+  ST[id][bi]++;
+  refreshBox(id, bi);
+  updateCtr(id);
+}
+
+function rem(id, bi) {
+  if (ST[id][bi] <= 0) return;
+  ST[id][bi]--;
+  refreshBox(id, bi);
+  updateCtr(id);
+}
+
+function updateCtr(id) {
+  const t  = tot(id);
+  const cn = document.getElementById('cn_' + id);
+  const cb = document.getElementById('cb_' + id);
+  const cd = document.getElementById('cd_' + id);
+  if (cn) cn.textContent = t;
+  if (cb) cb.style.width = (t / TOTAL * 100) + '%';
+  if (cd) cd.style.visibility = t === TOTAL ? 'visible' : 'hidden';
+  TASKS_BY_ID[id].bins.forEach((_, bi) => {
+    const box = document.getElementById('box_' + id + '_' + bi);
+    if (box) box.classList.toggle('at-max', t >= TOTAL);
+  });
+}
+
+// ── Build task + final pages dynamically ───────────────────────────────
+function stepsHtml(current, total) {
+  let s = '';
+  for (let i = 1; i <= total; i++) {
+    s += '<div class="step ' + (i < current ? 'done' : (i === current ? 'active' : '')) + '"></div>';
+  }
+  return s;
+}
+
+function buildTaskPage(cfg) {
+  const page = el('div', 'page');
+  page.id = cfg.id;
+
+  const nextId = cfg.id === 'q6' ? 'pg-final' : ('q' + (parseInt(cfg.id.slice(1)) + 1));
+
+  page.innerHTML = `
+    <div class="prog-wrap"><div class="prog-bar" style="width:${cfg.step / STEP_TOTAL * 100}%"></div></div>
+    <div class="hdr">
+      <div><div class="hdr-title">${cfg.title}, Step ${cfg.step} of ${STEP_TOTAL}</div></div>
+      <div class="steps">${stepsHtml(cfg.step, STEP_TOTAL)}</div>
+    </div>
+    <div class="content">
+      <div class="q-box">${cfg.intro}</div>
+      <p class="hint">${cfg.hint}</p>
+      <div class="ctr">
+        <span class="ctr-lbl">Placed</span>
+        <span class="ctr-num" id="cn_${cfg.id}">0</span>
+        <span class="ctr-lbl">/ 20</span>
+        <div class="ctr-bar-bg"><div class="ctr-bar" id="cb_${cfg.id}" style="width:0%"></div></div>
+        <span class="ctr-done" id="cd_${cfg.id}" style="visibility:hidden">&#10003; Complete</span>
+      </div>
+      <div class="bins-wrap" id="bw-${cfg.id}"></div>
+      <div class="fake-scrollbar" id="fsb-${cfg.id}"><div class="fake-scrollbar-thumb" id="fsbt-${cfg.id}"></div></div>
+      ${cfg.extra ? `<div class="field" style="margin-top:16px">
+        <label>${cfg.extra.label}</label>
+        <input type="number" id="extra-${cfg.id}" placeholder="${cfg.extra.placeholder || ''}">
+      </div>` : ''}
+      <div class="nav">
+        <button class="btn-s" onclick="goto('${cfg.prev}')">&larr; Back</button>
+        <button class="btn-p" onclick="goto('${nextId}')">Next &rarr;</button>
+      </div>
+    </div>
+  `;
+  document.body.insertBefore(page, document.getElementById('pg-done'));
+  buildBins(cfg.id);
+  setupFakeScrollbar(cfg.id);
+  window.addEventListener('resize', () => syncFakeScrollbar(cfg.id));
+}
+
+function syncFakeScrollbar(id) {
+  const wrap  = document.getElementById('bw-' + id);
+  const bar   = document.getElementById('fsb-' + id);
+  const thumb = document.getElementById('fsbt-' + id);
+  if (!wrap || !bar || !thumb) return;
+  const overflow = wrap.scrollWidth > wrap.clientWidth + 1;
+  bar.style.display = overflow ? 'block' : 'none';
+  if (!overflow) return;
+  const ratio = wrap.clientWidth / wrap.scrollWidth;
+  const maxScroll = wrap.scrollWidth - wrap.clientWidth;
+  const scrollRatio = maxScroll > 0 ? wrap.scrollLeft / maxScroll : 0;
+  thumb.style.width = (ratio * 100) + '%';
+  thumb.style.left  = (scrollRatio * (100 - ratio * 100)) + '%';
+}
+
+function setupFakeScrollbar(id) {
+  const wrap  = document.getElementById('bw-' + id);
+  const bar   = document.getElementById('fsb-' + id);
+  const thumb = document.getElementById('fsbt-' + id);
+  if (!wrap || !bar || !thumb) return;
+
+  wrap.addEventListener('scroll', () => syncFakeScrollbar(id));
+  syncFakeScrollbar(id);
+
+  bar.addEventListener('click', e => {
+    if (e.target === thumb) return;
+    const rect = bar.getBoundingClientRect();
+    const clickRatio = (e.clientX - rect.left) / rect.width;
+    wrap.scrollLeft = clickRatio * (wrap.scrollWidth - wrap.clientWidth);
+  });
+
+  let dragging = false, startX = 0, startLeft = 0;
+  const startDrag = clientX => { dragging = true; startX = clientX; startLeft = wrap.scrollLeft; };
+  const moveDrag  = clientX => {
+    if (!dragging) return;
+    const rect = bar.getBoundingClientRect();
+    const dx = clientX - startX;
+    const maxScroll = wrap.scrollWidth - wrap.clientWidth;
+    wrap.scrollLeft = startLeft + dx * (maxScroll / rect.width);
+  };
+  const endDrag = () => { dragging = false; };
+
+  thumb.addEventListener('mousedown', e => { startDrag(e.clientX); e.preventDefault(); });
+  window.addEventListener('mousemove', e => moveDrag(e.clientX));
+  window.addEventListener('mouseup', endDrag);
+
+  thumb.addEventListener('touchstart', e => startDrag(e.touches[0].clientX), { passive: true });
+  window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX), { passive: true });
+  window.addEventListener('touchend', endDrag);
+}
+
+function buildFinalPage() {
+  const page = el('div', 'page');
+  page.id = 'pg-final';
+  page.innerHTML = `
+    <div class="prog-wrap"><div class="prog-bar" style="width:100%"></div></div>
+    <div class="hdr">
+      <div><div class="hdr-title">Almost done, Step 8 of ${STEP_TOTAL}</div></div>
+      <div class="steps">${stepsHtml(8, STEP_TOTAL)}</div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <h2>Anything you would like to add?</h2>
+        <div class="field">
+          <textarea id="f-comment" placeholder="Optional comments"></textarea>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn-s" onclick="goto('q6')">&larr; Back</button>
+        <button class="btn-p" id="submit-btn" onclick="submitResponse()">Submit &rarr;</button>
+      </div>
+    </div>
+  `;
+  document.body.insertBefore(page, document.getElementById('pg-done'));
+}
+
+// ── Submit ──────────────────────────────────────────────────────────────
+async function submitResponse() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving\u2026';
+
+  const roleRadio = document.querySelector('input[name="role"]:checked');
+  const role = roleRadio ? roleRadio.value : 'academic';
+  const roleOther = role === 'other' ? document.getElementById('f-role-other').value.trim() : '';
+
+  const extra = {};
+  TASKS.forEach(t => {
+    if (t.extra) {
+      const v = document.getElementById('extra-' + t.id).value;
+      extra[t.extra.id] = v === '' ? null : Number(v);
+    }
+  });
+
+  const resp = {
+    id:          Date.now().toString(),
+    ts:          new Date().toISOString(),
+    name:        document.getElementById('f-name').value.trim() || 'Anonymous',
+    affiliation: document.getElementById('f-affil').value.trim(),
+    role:        role,
+    roleOther:   roleOther,
+    consent:     document.getElementById('f-consent').checked,
+    comment:     document.getElementById('f-comment').value.trim(),
+    stones:      {},
+    extra:       extra
+  };
+  TASKS.forEach(t => { resp.stones[t.id] = [...ST[t.id]]; });
+
+  try {
+    const arr = load();
+    arr.push(resp);
+    localStorage.setItem('fz_prior', JSON.stringify(arr));
+  } catch(e) { console.error(e); }
+
+  // Show the confirmation screen immediately, the local copy is already
+  // safe in localStorage. The network saves (Apps Script, formsubmit)
+  // keep running in the background and we update the status once they
+  // are done, rather than making the person stare at "Saving..." for
+  // however long Apps Script takes to wake up (often several seconds).
+  renderDonePending(resp);
+  goto('pg-done');
+  btn.disabled = false;
+  btn.textContent = 'Submit \u2192';
+
+  const hasWebhook = !!CONFIG.WEBHOOK_URL;
+  const hasEmail = !!CONFIG.FORMSUBMIT_EMAIL;
+
+  const sendWebhook = async () => {
+    if (!hasWebhook) return false;
+    try {
+      const payload = { id: resp.id, name: resp.name, affiliation: resp.affiliation,
+        role: resp.role, roleOther: resp.roleOther, consent: resp.consent,
+        comment: resp.comment, extra: resp.extra, stones: resp.stones,
+        taskIds: TASKS.map(t => t.id), taskLabels: TASKS.map(t => t.bins) };
+      // mode 'no-cors' means we can never read the response body or status,
+      // but awaiting the fetch still tells us the request left the browser
+      // and didn't fail outright (offline, blocked, DNS, etc.)
+      await fetch(CONFIG.WEBHOOK_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      return true;
+    } catch (e) { console.error(e); return false; }
+  };
+
+  const sendEmail = async () => {
+    if (!hasEmail) return false;
+    try {
+      const modal = id => {
+        const arr = resp.stones[id];
+        const idx = arr.indexOf(Math.max(...arr));
+        return TASKS_BY_ID[id].bins[idx];
+      };
+      const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.FORMSUBMIT_EMAIL), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: 'New prior response from ' + resp.name,
+          name: resp.name, role: resp.role, affiliation: resp.affiliation,
+          q1_modal: modal('q1'), q2_modal: modal('q2'), q3_modal: modal('q3'),
+          q4_modal: modal('q4'), q5_modal: modal('q5'), q6_modal: modal('q6'),
+          comment: resp.comment,
+          full_response_json: JSON.stringify(resp)
+        })
+      });
+      // formsubmit answers 200 OK even the first time, when it has not
+      // actually relayed anything yet and instead sent an activation
+      // email that needs one confirmation click, so res.ok alone is not
+      // reliable. Read the body and check the success flag it reports.
+      let ok = res.ok;
+      try {
+        const data = await res.clone().json();
+        if (data && typeof data.success !== 'undefined') {
+          ok = data.success === true || data.success === 'true';
+        }
+        if (!ok) console.warn('formsubmit did not confirm delivery:', data);
+      } catch (parseErr) { /* keep the res.ok fallback if the body isn't JSON */ }
+      return ok;
+    } catch (e) { console.error(e); return false; }
+  };
+
+  const [webhookSent, emailOk] = await Promise.all([sendWebhook(), sendEmail()]);
+  const savedRemotely = webhookSent || emailOk;
+  const configured = hasWebhook || hasEmail;
+
+  // only touch the status box, the rest of the done page (and any page
+  // the person may have already navigated to) is left alone
+  updateDoneStatus(resp, savedRemotely, configured);
+}
+
+function renderDonePending(resp) {
+  const statusEl = document.getElementById('done-status');
+  statusEl.innerHTML = `<div class="info-box" style="display:flex;align-items:center;gap:10px">
+    <span class="spinner" aria-hidden="true"></span> Saving your response&hellip;</div>`;
+  renderDoneSummary(resp);
+}
+
+function updateDoneStatus(resp, savedRemotely, configured) {
+  const statusEl = document.getElementById('done-status');
+  if (!statusEl) return;
+  if (!configured) {
+    statusEl.innerHTML = `<div class="info-box" style="border-color:#fde68a;background:#fef9c3;color:var(--amber)">
+      Data collection is not configured yet on this copy of the page, see the SETUP REQUIRED
+      comment near the top of the file. Your answers were saved on this device only, please
+      <a href="#" onclick="dlOne('${resp.id}');return false;">download them</a> and send them
+      to the research team.</div>`;
+  } else if (!savedRemotely) {
+    statusEl.innerHTML = `<div class="info-box" style="border-color:#fca5a5;background:#fee2e2;color:var(--red)">
+      Your answers could not be saved automatically. Please
+      <a href="#" onclick="dlOne('${resp.id}');return false;">download them</a> and send them
+      to the research team.</div>`;
+  } else {
+    statusEl.innerHTML = `<div class="info-box" style="border-color:#bbf7d0;background:var(--green-lt);color:#14532d">
+      Saved. Thank you.</div>`;
+  }
+}
+
+function renderDoneSummary(resp) {
+  const el2 = document.getElementById('done-summary');
+  el2.innerHTML = TASKS.map(t => {
+    const stones = resp.stones[t.id];
+    const rows = t.bins.map((bin, bi) => {
+      if (!stones[bi]) return '';
+      const pct = stones[bi] / TOTAL * 100;
+      return `<div class="sum-row">
+        <div class="sum-lbl">${bin}</div>
+        <div class="sum-bg"><div class="sum-fill" style="width:${pct}%"></div></div>
+        <div class="sum-n">${stones[bi]}</div>
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:5px">${t.title}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+function dlOne(id) {
+  const arr = load();
+  const resp = arr.find(r => r.id === id);
+  if (!resp) return;
+  dl(new Blob([JSON.stringify(resp, null, 2)], {type:'application/json'}),
+     'fz_prior_response_' + id + '.json');
+}
+
+function newResponse() {
+  ST = {};
+  TASKS.forEach(t => ST[t.id] = new Array(t.bins.length).fill(0));
+  document.getElementById('f-name').value  = '';
+  document.getElementById('f-affil').value = '';
+  document.getElementById('f-consent').checked = false;
+  document.getElementById('f-comment').value = '';
+  document.getElementById('f-role-other').value = '';
+  document.getElementById('role-academic').checked = true;
+  toggleOtherRole();
+  TASKS.forEach(t => {
+    if (t.extra) document.getElementById('extra-' + t.id).value = '';
+    syncTask(t.id);
+  });
+  goto('pg-welcome');
+}
+
+// ── Admin modal ─────────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('pwd-err').style.display = 'none';
+  setTimeout(() => document.getElementById('pwd-input').focus(), 80);
+}
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function checkAdmin() {
+  if (document.getElementById('pwd-input').value === CODE) {
+    closeModal(); goto('pg-admin');
+  } else {
+    document.getElementById('pwd-err').style.display = '';
+  }
+}
+
+// ── Admin render ────────────────────────────────────────────────────────
+function load() {
+  try { return JSON.parse(localStorage.getItem('fz_prior') || '[]'); } catch { return []; }
+}
+
+function badgeClass(role) {
+  return ['academic','policy','practitioner','other'].includes(role) ? 'b-' + role : 'b-other';
+}
+
+function renderAdmin() {
+  const resps = load();
+  const body  = document.getElementById('admin-body');
+
+  if (!resps.length) {
+    body.innerHTML = `<div style="text-align:center;padding:60px 0;color:var(--muted)">
+      <div style="font-size:36px;margin-bottom:10px">&#128203;</div>
+      <p>No responses yet.</p></div>`;
+    return;
+  }
+
+  const agg = TASKS.map(t =>
+    t.bins.map((_, bi) => resps.reduce((s, r) => s + ((r.stones[t.id] && r.stones[t.id][bi]) || 0), 0))
+  );
+  const aggT = agg.map(a => a.reduce((s, v) => s + v, 0) || 1);
+
+  const roles = {};
+  resps.forEach(r => { roles[r.role] = (roles[r.role] || 0) + 1; });
+
+  const aggHtml = TASKS.map((t, ti) => `
+    <div style="margin-bottom:20px">
+      <h3>${t.title}</h3>
+      ${t.bins.map((bin, bi) => {
+        const pct = Math.round(agg[ti][bi] / aggT[ti] * 100);
+        return `<div class="agg-row">
+          <div class="agg-lbl">${bin}</div>
+          <div class="agg-bg"><div class="agg-fill" style="width:${pct}%"></div></div>
+          <div class="agg-pct">${pct}%</div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  const tableRows = resps.slice().reverse().map(r => {
+    const modal = id => {
+      const arr = (r.stones && r.stones[id]) || [];
+      if (!arr.length) return '';
+      const idx = arr.indexOf(Math.max(...arr));
+      return TASKS_BY_ID[id].bins[idx];
+    };
+    const when = new Date(r.ts).toLocaleString('en-GB', {
+      day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
+    });
+    return `<tr>
+      <td>${r.name}</td>
+      <td><span class="badge ${badgeClass(r.role)}">${r.role === 'other' && r.roleOther ? r.roleOther : r.role}</span></td>
+      <td>${modal('q1')}</td>
+      <td>${modal('q2')}</td>
+      <td>${modal('q3')}</td>
+      <td>${modal('q4')}</td>
+      <td>${modal('q5')}</td>
+      <td>${modal('q6')}</td>
+      <td style="color:var(--muted)">${when}</td>
+    </tr>`;
+  }).join('');
+
+  const roleCards = Object.entries(roles).map(([k, v]) =>
+    `<div><div class="stat-num">${v}</div>
+     <div><span class="badge ${badgeClass(k)}">${k}</span></div></div>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="card">
+      <div class="stat-row">
+        <div>
+          <div class="stat-num">${resps.length}</div>
+          <div class="stat-lbl">Total responses</div>
+        </div>
+        ${roleCards}
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-s" onclick="dlJSON()">&#8659; JSON</button>
+          <button class="btn-s" onclick="dlCSV()">&#8659; CSV</button>
+          <button class="btn-s btn-danger" onclick="clearAll()">Clear all</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Aggregate distributions</h2>
+      <hr>
+      ${aggHtml}
+    </div>
+    <div class="card">
+      <h2 style="margin-bottom:10px">Individual responses</h2>
+      <table>
+        <thead><tr>
+          <th>Respondent</th><th>Role</th>
+          <th>Q1 modal</th><th>Q2 modal</th><th>Q3 modal</th><th>Q4 modal</th><th>Q5 modal</th><th>Q6 modal</th><th>Time</th>
+        </tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── Export ──────────────────────────────────────────────────────────────
+function dlJSON() {
+  const d = load();
+  dl(new Blob([JSON.stringify(d, null, 2)], {type:'application/json'}),
+     'fz_prior_elicitation.json');
+}
+
+function dlCSV() {
+  const d = load();
+  if (!d.length) return;
+  const h = ['id','timestamp','name','affiliation','role','roleOther','consent','comment',
+    'q3_min_effect','q4_min_effect',
+    ...TASKS.flatMap(t => t.bins.map((_, i) => t.id + '_bin' + i))];
+  const rows = d.map(r =>
+    [r.id, r.ts, `"${r.name}"`, `"${r.affiliation||''}"`, r.role, `"${r.roleOther||''}"`, r.consent, `"${(r.comment||'').replace(/"/g,'""')}"`,
+     (r.extra && r.extra.q3_min != null ? r.extra.q3_min : ''), (r.extra && r.extra.q4_min != null ? r.extra.q4_min : ''),
+     ...TASKS.flatMap(t => (r.stones[t.id] || t.bins.map(()=>0)))]);
+  dl(new Blob([[h,...rows].map(r=>r.join(',')).join('\n')],{type:'text/csv'}),
+     'fz_prior_elicitation.csv');
+}
+
+function dl(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clearAll() {
+  const n = load().length;
+  if (confirm(`Delete all ${n} response${n!==1?'s':''}? This cannot be undone.`)) {
+    localStorage.removeItem('fz_prior');
+    renderAdmin();
+  }
+}
+
+// ── Utility ─────────────────────────────────────────────────────────────
+function el(tag, cls) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  return e;
+}
+
+// ── Init ────────────────────────────────────────────────────────────────
+TASKS.forEach(cfg => buildTaskPage(cfg));
+buildFinalPage();
+if (window.location.hash === '#admin') { openModal(); }
+</script>
+</body>
+</html>
