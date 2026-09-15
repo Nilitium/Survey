@@ -233,9 +233,23 @@
     .radio-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .radio-row input { width: auto; margin: 0; }
     .radio-row label { margin: 0; font-size: 13px; color: #1e293b; font-weight: 400; }
-    .check-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; }
-    .check-row input { width: auto; margin-top: 3px; }
-    .check-row label { font-size: 12px; color: var(--slate); font-weight: 400; line-height: 1.55; }
+    .check-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-top: 4px; padding: 6px 4px; border-radius: 6px;
+      cursor: pointer; transition: background .15s;
+    }
+    .check-row:hover { background: var(--bg); }
+    .check-row input {
+      width: 18px; height: 18px; min-width: 18px;
+      margin-top: 2px; accent-color: var(--blue); cursor: pointer;
+    }
+    .check-row label { font-size: 12px; color: var(--slate); font-weight: 400; line-height: 1.55; cursor: pointer; }
+
+    @media (max-width: 600px) {
+      .check-row { padding: 10px 6px; }
+      .check-row input { width: 24px; height: 24px; min-width: 24px; margin-top: 0; }
+      .check-row label { font-size: 13px; line-height: 1.6; }
+    }
 
     .btn-p {
       padding: 9px 22px;
@@ -288,6 +302,23 @@
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th { text-align: left; padding: 8px 10px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 500; }
     td { padding: 7px 10px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
+
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 8px 0 4px; border-radius: 6px; }
+    .table-wrap table { min-width: 560px; }
+
+    .example-table.table-wrap table { min-width: 0; }
+    .example-table th, .example-table td { text-align: center; white-space: nowrap; }
+    .example-table th:first-child, .example-table td:first-child { text-align: left; }
+    .example-table .short { display: none; }
+
+    @media (max-width: 600px) {
+      .example-table.table-wrap { overflow-x: visible; }
+      .example-table { table-layout: fixed; width: 100%; }
+      .example-table th, .example-table td { padding: 6px 2px; font-size: 11px; }
+      .example-table th:first-child, .example-table td:first-child { width: 20%; padding-left: 0; }
+      .example-table .full { display: none; }
+      .example-table .short { display: inline; }
+    }
 
     .agg-row  { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
     .agg-lbl  { font-size: 11px; color: var(--slate); text-align: right; width: 130px; flex-shrink: 0; }
@@ -394,13 +425,24 @@
       <p style="margin-top:10px">If you place no stones in a range, you are saying you are sure the outcome will not fall there. The more stones you place in a range, the more likely you think that outcome is. Ten stones in one range means you think it is just as likely as not (fifty fifty). All 20 stones in one range means you are certain. There is no right or wrong answer, we just want to know what you think.</p>
       <h3 style="margin-top:18px">Worked example</h3>
       <p style="margin-bottom:8px">Suppose we ask your beliefs about how many of the next seven days it will rain in Chicago, and you place your stones like this.</p>
+      <div class="table-wrap example-table">
       <table>
-        <thead><tr><th></th><th>0 days</th><th>1 day</th><th>2 days</th><th>3 days</th><th>4 days</th><th>5 days</th><th>6 days</th><th>7 days</th></tr></thead>
+        <thead><tr><th></th>
+          <th><span class="full">0 days</span><span class="short">0</span></th>
+          <th><span class="full">1 day</span><span class="short">1</span></th>
+          <th><span class="full">2 days</span><span class="short">2</span></th>
+          <th><span class="full">3 days</span><span class="short">3</span></th>
+          <th><span class="full">4 days</span><span class="short">4</span></th>
+          <th><span class="full">5 days</span><span class="short">5</span></th>
+          <th><span class="full">6 days</span><span class="short">6</span></th>
+          <th><span class="full">7 days</span><span class="short">7</span></th>
+        </tr></thead>
         <tbody>
           <tr><td style="color:var(--slate)">Stones</td><td>0</td><td>0</td><td>1</td><td>2</td><td>4</td><td>5</td><td>5</td><td>3</td></tr>
-          <tr><td style="color:var(--slate)">Implied probability</td><td>0%</td><td>0%</td><td>5%</td><td>10%</td><td>20%</td><td>25%</td><td>25%</td><td>15%</td></tr>
+          <tr><td style="color:var(--slate)"><span class="full">Implied probability</span><span class="short">Prob.</span></td><td>0%</td><td>0%</td><td>5%</td><td>10%</td><td>20%</td><td>25%</td><td>25%</td><td>15%</td></tr>
         </tbody>
       </table>
+      </div>
       <p style="margin-top:10px">This would mean you think there is zero chance it does not rain at all or rains on only one day, a 5% chance it rains on exactly two days, a 20% chance it rains on four days, and a 15% chance it rains every single day of the week.</p>
     </div>
     <div class="nav">
@@ -440,10 +482,10 @@
         <label>Affiliation (optional)</label>
         <input type="text" id="f-affil" placeholder="Leave blank to stay anonymous">
       </div>
-      <div class="check-row">
+      <label class="check-row" for="f-consent">
         <input type="checkbox" id="f-consent">
-        <label for="f-consent">I am happy for my name and affiliation to be stored with my answers and used for robustness checks that drop one respondent at a time. If left unticked, my answers are kept anonymous.</label>
-      </div>
+        <span>I am happy for my name and affiliation to be stored with my answers and used for robustness checks that drop one respondent at a time. If left unticked, my answers are kept anonymous.</span>
+      </label>
     </div>
     <div class="nav">
       <button class="btn-s" onclick="goto('pg-instructions')">&larr; Back</button>
