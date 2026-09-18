@@ -44,6 +44,7 @@
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0;
+      gap: 12px;
     }
     .hdr-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
     .hdr-sub   { font-size: 11px; opacity: .65; margin-top: 2px; }
@@ -51,7 +52,7 @@
     .prog-wrap { height: 3px; background: var(--border); flex-shrink: 0; }
     .prog-bar  { height: 100%; background: var(--blue); transition: width .3s; }
 
-    .steps { display: flex; gap: 5px; align-items: center; }
+    .steps { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
     .step  { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.35); }
     .step.done   { background: rgba(255,255,255,.7); }
     .step.active { background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
@@ -243,12 +244,12 @@
       width: 18px; height: 18px; min-width: 18px;
       margin-top: 2px; accent-color: var(--blue); cursor: pointer;
     }
-    .check-row label { font-size: 12px; color: var(--slate); font-weight: 400; line-height: 1.55; cursor: pointer; }
+    .check-row label, .check-row span { font-size: 12px; color: var(--slate); font-weight: 400; line-height: 1.55; cursor: pointer; }
 
     @media (max-width: 600px) {
       .check-row { padding: 10px 6px; }
       .check-row input { width: 24px; height: 24px; min-width: 24px; margin-top: 0; }
-      .check-row label { font-size: 13px; line-height: 1.6; }
+      .check-row label, .check-row span { font-size: 13px; line-height: 1.6; }
     }
 
     .btn-p {
@@ -259,7 +260,7 @@
       cursor: pointer; transition: background .15s;
     }
     .btn-p:hover    { background: var(--blue); }
-    .btn-p:disabled { background: var(--border); cursor: not-allowed; }
+    .btn-p:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
     .btn-s {
       padding: 9px 18px;
       border-radius: 6px; border: 1px solid var(--border);
@@ -269,7 +270,8 @@
     .btn-s:hover { background: var(--bg); }
     .btn-danger { color: var(--red); }
 
-    .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; }
+    .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; gap: 12px; }
+    .nav-note { font-size: 12px; color: var(--muted); text-align: right; }
 
     .hero { text-align: center; padding: 16px 0 28px; }
     .hero h1 { font-size: 24px; margin-bottom: 10px; }
@@ -313,7 +315,7 @@
 
     @media (max-width: 600px) {
       .example-table.table-wrap { overflow-x: visible; }
-      .example-table { table-layout: fixed; width: 100%; }
+      .example-table table { table-layout: fixed; width: 100%; }
       .example-table th, .example-table td { padding: 6px 2px; font-size: 11px; }
       .example-table th:first-child, .example-table td:first-child { width: 20%; padding-left: 0; }
       .example-table .full { display: none; }
@@ -401,24 +403,86 @@
     <div class="hero">
       <h1>German Research Allowance Start-Up Pilot</h1>
       <p>We are interested in learning what you expect the effects of being offered the pre-filled draft are for these firms. Your answers will be pre-registered and reported alongside the results as one of several priors, following the Bayesian impact evaluation approach of Iacovone, McKenzie, and Meager (<em>Econometrica</em>, 2025). Individual responses are never reported separately.</p>
-      <button class="btn-p" onclick="goto('pg-instructions')">Start survey &rarr;</button>
+      <button class="btn-p" onclick="goNext()">Start survey &rarr;</button>
     </div>
     <div class="info-box">
-      <strong>Background on the research allowance.</strong> The research allowance is Germany's R&amp;D tax credit, introduced on 1 January 2020 under the Research Allowance Act (FZulG). Unlike the project-based grant programmes that dominate German innovation policy, it is volume-based and non-selective. Any firm carrying out qualifying R&amp;D is entitled to the credit, irrespective of sector, size, or profitability. The credit is worth 25 percent of eligible R&amp;D personnel and contract-R&amp;D costs, rising to 35 percent for SMEs, and loss-making firms receive it as a cash payout rather than an offset against tax owed.  
-      <br><br>
+      <strong>Background on the research allowance.</strong> The research allowance is Germany's R&amp;D tax credit, introduced on 1 January 2020 under the Research Allowance Act (FZulG). Unlike the project-based grant programmes that dominate German innovation policy, it is volume-based and non-selective. Any firm carrying out qualifying R&amp;D is entitled to the credit, irrespective of sector, size, or profitability. The credit is worth 25 percent of eligible R&amp;D personnel and contract-R&amp;D costs, rising to 35 percent for SMEs, and loss-making firms receive it as a cash payout rather than an offset against tax owed.
     </div>
     <div class="info-box">
       <strong>Background on the pilot.</strong> 500 eligible German start-ups have been randomly assigned to two groups of 250. Firms were identified from web-based classification of R&amp;D activity and are contacted through LinkedIn outreach carrying partner endorsement from start up ecosystem organisations.
-     </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="page" id="pg-instructions">
+  <div class="prog-wrap"><div class="prog-bar" style="width:0%"></div></div>
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">How this survey works</div>
+      <div class="hdr-sub">Please read before you start</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <h2>Allocating your 20 stones</h2>
+      <p>Each question asks you to describe how likely you think different outcomes are. You do this by distributing <strong>20 stones</strong> across a row of ranges. Every stone you place is worth <strong>5 percent</strong> of your probability mass, so all 20 stones together account for 100 percent of what you think could happen.</p>
+      <p style="margin-top:10px">Put more stones on the ranges you consider more likely and fewer, or none, on the ranges you consider unlikely. There are no right answers, we are interested in your honest expectation, including your uncertainty.</p>
+    </div>
+
+    <div class="card">
+      <h2>A worked example</h2>
+      <p>Suppose a question asked what percentage of firms will do something, and you thought the answer was most likely between 11 and 15 percent, but you would not be surprised by anything from 0 to 25. You might place your stones like this.</p>
+      <div class="table-wrap example-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Range</th>
+              <th>0 <span class="full">to</span><span class="short">&ndash;</span> 5</th>
+              <th>6 <span class="full">to</span><span class="short">&ndash;</span> 10</th>
+              <th>11 <span class="full">to</span><span class="short">&ndash;</span> 15</th>
+              <th>16 <span class="full">to</span><span class="short">&ndash;</span> 20</th>
+              <th>21 <span class="full">to</span><span class="short">&ndash;</span> 25</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Stones</td><td>1</td><td>4</td><td>8</td><td>5</td><td>2</td>
+            </tr>
+            <tr>
+              <td>Probability</td><td>5%</td><td>20%</td><td>40%</td><td>25%</td><td>10%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="hint" style="margin-bottom:0">That is 20 stones in total, so 100 percent of the probability is accounted for.</p>
+    </div>
+
+    <div class="card">
+      <h2>Using the interface</h2>
+      <div class="example-box" style="margin-bottom:0">
+        <ul>
+          <li><strong>Click a column</strong> to add a stone to it.</li>
+          <li><strong>Click a stone</strong>, or use the <strong>&minus;</strong> button, to take one away.</li>
+          <li>The counter above the columns shows how many of your 20 stones are placed.</li>
+          <li>Some questions have more ranges than fit on screen, <strong>scroll or drag the blue bar</strong> underneath to see them all.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-s" onclick="goBack()">&larr; Back</button>
+      <button class="btn-p" onclick="goNext()">Continue &rarr;</button>
+    </div>
   </div>
 </div>
 
 <!-- ABOUT -->
 <div class="page" id="pg-about">
-  <div class="prog-wrap"><div class="prog-bar" style="width:12%"></div></div>
+  <div class="prog-wrap"><div class="prog-bar" style="width:0%"></div></div>
   <div class="hdr">
-    <div><div class="hdr-title">About you, Step 1 of 9</div></div>
-    <div class="steps" id="steps-about"></div>
+    <div><div class="hdr-title">About you</div></div>
+    <div class="steps"></div>
   </div>
   <div class="content">
     <div class="card">
@@ -449,8 +513,38 @@
       </label>
     </div>
     <div class="nav">
-      <button class="btn-s" onclick="goto('pg-instructions')">&larr; Back</button>
-      <button class="btn-p" onclick="goto('q1')">Next &rarr;</button>
+      <button class="btn-s" onclick="goBack()">&larr; Back</button>
+      <button class="btn-p" onclick="goNext()">Next &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPACT SECTION INTRO -->
+<div class="page" id="pg-impact">
+  <div class="prog-wrap"><div class="prog-bar" style="width:0%"></div></div>
+  <div class="hdr">
+    <div><div class="hdr-title">Effects of the offer</div></div>
+    <div class="steps"></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <h2>The next questions are about impact, not levels</h2>
+      <p>So far you have given us your beliefs about what happens in the absence of the offer, and about how many firms take the offer up. The remaining questions ask something different.</p>
+      <p style="margin-top:10px">From here on we ask about the <strong>change</strong> caused by being offered the pre-filled draft, that is, the difference between the 250 firms whose message carried the offer and the 250 firms whose message did not, over the six months following first contact.</p>
+    </div>
+    <div class="card">
+      <h2>Two things to keep in mind</h2>
+      <div class="example-box" style="margin-bottom:0">
+        <ul>
+          <li>Answers are in <strong>percentage points</strong>, not percent changes. If you think the offer lifts the application rate from 4 percent to 12 percent, that is an effect of <strong>8</strong>.</li>
+          <li>The effect is measured across <strong>all 250 treated firms</strong>, including those who never click the button, not only among those who request a draft.</li>
+          <li>Where a single number is written, for example 7, read it as the interval [7.0 to 7.99].</li>
+        </ul>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-s" onclick="goBack()">&larr; Back</button>
+      <button class="btn-p" onclick="goNext()">Continue &rarr;</button>
     </div>
   </div>
 </div>
@@ -482,69 +576,95 @@
   </div>
   <div class="content" id="admin-body"><p>Loading&hellip;</p></div>
 </div>
- 
+
 <script>
 /* =====================================================================
    SETUP REQUIRED BEFORE YOU PUBLISH THIS PAGE
    ---------------------------------------------------------------------
-   This page currently only saves to localStorage, meaning each device
-   only ever sees its own submissions. Fill in one or both of the
-   options below so responses reach you from every device that opens
-   the page, not just your own.
+   OPTION A. Straight to your inbox. Set FORMSUBMIT_EMAIL, every
+   submission is emailed to you via formsubmit.co. First use needs one
+   confirmation click in an email they send you.
 
-   OPTION A. Straight to your inbox, easiest, no account needed.
-   Set FORMSUBMIT_EMAIL to your email address, every submission is
-   emailed to you via formsubmit.co. First use needs one confirmation
-   click in an email they send you.
+   OPTION B. A Google Sheet you own, via Apps Script. Set WEBHOOK_URL to
+   a deployed Apps Script Web App's URL.
 
-   OPTION B. A Google Sheet you own, via Apps Script.
-   Set WEBHOOK_URL to a deployed Apps Script Web App's URL. Use a
-   separate Google Sheet and Apps Script project from any other survey,
-   so the two don't mix data.
+   REQUIRE_FULL_ALLOCATION: when true, the Next button on a question is
+   disabled until all 20 stones are placed. Set to false to allow
+   partial allocations.
    ===================================================================== */
 const CONFIG = {
   FORMSUBMIT_EMAIL: 'nils.handler@uzh.ch',
-  WEBHOOK_URL: 'https://script.google.com/macros/s/AKfycbwF3jhhxHDlnKVdoAEKdGBIuYg7hz2TapMgx6BmTpYb7Kl6X-S2AG53SMGnyW6vE2b4/exec'
+  WEBHOOK_URL: 'https://script.google.com/macros/s/AKfycbwF3jhhxHDlnKVdoAEKdGBIuYg7hz2TapMgx6BmTpYb7Kl6X-S2AG53SMGnyW6vE2b4/exec',
+  REQUIRE_FULL_ALLOCATION: true
 };
 
 const TOTAL = 20;
 const CODE  = 'forschung2026';
-const STEP_TOTAL = 9;
 
+/* ---------------------------------------------------------------------
+   QUESTIONS
+   Add or remove entries here, then add or remove the matching id in
+   SURVEY_FLOW below. Step numbers, progress bars, the Back/Next wiring,
+   the admin table and the CSV export all derive themselves from these
+   two lists, so nothing else needs editing.
+   ------------------------------------------------------------------ */
 const TASKS = [
   {
-    id: 'q1', step: 2,
+    id: 'q1',
     title: 'Question 1. Beliefs about the baseline application rate',
+    short: 'Q1',
     intro: '<p>The 250 firms in the control group receive only the standard outreach message. They remain free to apply for the research allowance exactly as they would have anyway.</p>' +
       '<p style="margin-top:8px">Please allocate 20 stones into the ranges below, according to how likely you think it is that the <strong>percentage of these 250 control firms submitting a BSFZ certification application within six months</strong> lies in each range.</p>',
     hint: 'Each stone = 5 percent probability mass, 20 stones total.',
-    bins: ['0 to 1','2 to 3','4 to 5','6 to 7','8 to 9','10 to 11','12 to 13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 50','51 to 60','61 to 70','71 to 80','81 to 90','91 to 100'],
-    prev: 'pg-instructions'
+    bins: ['0 to 1','2 to 3','4 to 5','6 to 7','8 to 9','10 to 11','12 to 13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 50','51 to 60','61 to 70','71 to 80','81 to 90','91 to 100']
   },
   {
-    id: 'q2', step: 3,
+    id: 'q2',
     title: 'Question 2. Beliefs about opt-in among those offered the draft',
+    short: 'Q2',
     intro: '<p>250 firms have been assigned to the treatment group, meaning their message carries the button offering a pre-filled draft. A draft is written only for those who click.</p>' +
       '<p style="margin-top:8px">Please allocate 20 stones into the different ranges below, according to how likely you think it is that the <strong>number of firms out of the 250 in the treatment group that click the button and request a draft</strong> lies in each range.</p>' +
       '<p style="margin-top:8px">For example, if you think there is a 10 percent chance that between 16 and 20 percent of firms will request a draft, put 2 stones in the cell under 16 to 20, and allocate your other 18 stones according to what else you think is likely.</p>',
     hint: 'Each stone = 5 percent probability mass, 20 stones total.',
-    bins: ['0 to 5','6 to 10','11 to 15','16 to 20','21 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 55','56 to 60','61 to 65','66 to 70','71 to 75','76 to 80','81 to 85','86 to 90','91 to 95','96 to 100'],
-    prev: 'q1', next: 'pg-impact'
+    bins: ['0 to 5','6 to 10','11 to 15','16 to 20','21 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 55','56 to 60','61 to 65','66 to 70','71 to 75','76 to 80','81 to 85','86 to 90','91 to 95','96 to 100']
   },
   {
-    id: 'q3', step: 5,
+    id: 'q3',
     title: 'Question 3. Impact on whether firms submit a BSFZ application',
+    short: 'Q3',
     intro: '<p>This is the primary outcome of the pilot. A firm counts as having applied if BSFZ records a certification application from it within six months of first contact, measured by application date rather than by the date certification is granted or refused.</p>' +
       '<p style="margin-top:8px">We want to know how much you think this will <strong>CHANGE</strong> for the group offered the draft compared to the group that is not, over the six months following contact. For example, if you think there is a 15 percent chance the offer will increase the percentage of firms applying by 8 percentage points, put 3 stones in the box under 8, and allocate your remaining stones according to what else you think is likely.</p>' +
       '<p style="margin-top:8px">Where a single number is written (e.g. 7), you should think of it as the interval [7.0 to 7.99].</p>',
     hint: 'Each stone = 5 percent probability mass, 20 stones total.',
     bins: ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14 to 15','16 to 18','19 to 21','22 to 25','26 to 30','31 to 35','36 to 40','41 to 45','46 to 50','51 to 60','>60'],
-    extra: { id: 'q3_min', label: 'What would be the minimum effect size you would want to see in order to consider rolling this out to the full population of eligible start-ups? Express your answer in percentage points. For example, if you would want a 4% application rate to rise to at least 12%, you should give 8 as your answer.', placeholder: 'e.g. 8' },
-    prev: 'pg-impact'
-  }, 
+    extra: { id: 'q3_min', label: 'What would be the minimum effect size you would want to see in order to consider rolling this out to the full population of eligible start-ups? Express your answer in percentage points. For example, if you would want a 4% application rate to rise to at least 12%, you should give 8 as your answer.', placeholder: 'e.g. 8' }
+  }
 ];
+
 const TASKS_BY_ID = {};
 TASKS.forEach(t => TASKS_BY_ID[t.id] = t);
+
+/* The numbered part of the survey, in order. Each entry is one step.
+   'task' entries must match an id in TASKS above. */
+const SURVEY_FLOW = [
+  { id: 'pg-about',   kind: 'static', title: 'About you' },
+  { id: 'q1',         kind: 'task'   },
+  { id: 'q2',         kind: 'task'   },
+  { id: 'pg-impact',  kind: 'static', title: 'Effects of the offer' },
+  { id: 'q3',         kind: 'task'   },
+  { id: 'pg-final',   kind: 'static', title: 'Almost done' }
+];
+
+const STEP_TOTAL = SURVEY_FLOW.length;
+
+/* Unnumbered pages before the survey proper, plus the survey itself.
+   This is what Back and Next walk along. */
+const FLOW = ['pg-welcome', 'pg-instructions'].concat(SURVEY_FLOW.map(s => s.id));
+
+const STEP_OF = {};
+SURVEY_FLOW.forEach((s, i) => { STEP_OF[s.id] = i + 1; });
+
+let currentPage = 'pg-welcome';
 
 let ST = {};
 TASKS.forEach(t => ST[t.id] = new Array(t.bins.length).fill(0));
@@ -553,13 +673,30 @@ function tot(id) { return ST[id].reduce((a, b) => a + b, 0); }
 
 // ── Navigation ──────────────────────────────────────────────────────────
 function goto(id) {
+  const target = document.getElementById(id);
+  if (!target) { console.error('goto: no page with id "' + id + '"'); return; }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  target.classList.add('active');
+  currentPage = id;
   if (TASKS_BY_ID[id]) {
     syncTask(id);
-    syncFakeScrollbar(id);
+    // the page has to be visible before the widths mean anything
+    requestAnimationFrame(() => syncFakeScrollbar(id));
   }
   if (id === 'pg-admin') renderAdmin();
+  window.scrollTo(0, 0);
+}
+
+function goNext() {
+  const i = FLOW.indexOf(currentPage);
+  if (i === -1 || i === FLOW.length - 1) return;
+  goto(FLOW[i + 1]);
+}
+
+function goBack() {
+  const i = FLOW.indexOf(currentPage);
+  if (i <= 0) return;
+  goto(FLOW[i - 1]);
 }
 
 function toggleOtherRole() {
@@ -583,9 +720,9 @@ function buildBins(id) {
     cnt.textContent = '0';
 
     const btns = el('div', 'bin-btns');
-    const bm   = el('button', 'bin-btn'); bm.textContent = '\u2212';
+    const bm   = el('button', 'bin-btn'); bm.type = 'button'; bm.textContent = '−';
     bm.onclick = e => { e.stopPropagation(); rem(id, bi); };
-    const bp   = el('button', 'bin-btn'); bp.textContent = '+';
+    const bp   = el('button', 'bin-btn'); bp.type = 'button'; bp.textContent = '+';
     bp.onclick = e => { e.stopPropagation(); add(id, bi); };
     btns.append(bm, bp);
 
@@ -616,7 +753,6 @@ function refreshBox(id, bi) {
     box.appendChild(s);
   }
   if (cnt) cnt.textContent = n;
-  box.classList.toggle('at-max', tot(id) >= TOTAL);
 }
 
 function add(id, bi) {
@@ -645,9 +781,16 @@ function updateCtr(id) {
     const box = document.getElementById('box_' + id + '_' + bi);
     if (box) box.classList.toggle('at-max', t >= TOTAL);
   });
+  const nextBtn = document.getElementById('next_' + id);
+  const note    = document.getElementById('note_' + id);
+  if (nextBtn && CONFIG.REQUIRE_FULL_ALLOCATION) {
+    const ready = t === TOTAL;
+    nextBtn.disabled = !ready;
+    if (note) note.textContent = ready ? '' : (TOTAL - t) + ' stone' + (TOTAL - t === 1 ? '' : 's') + ' left to place';
+  }
 }
 
-// ── Build task + final pages dynamically ───────────────────────────────
+// ── Build task, interstitial and final pages ────────────────────────────
 function stepsHtml(current, total) {
   let s = '';
   for (let i = 1; i <= total; i++) {
@@ -657,16 +800,15 @@ function stepsHtml(current, total) {
 }
 
 function buildTaskPage(cfg) {
+  const step = STEP_OF[cfg.id];
   const page = el('div', 'page');
   page.id = cfg.id;
 
-  const nextId = cfg.next || (cfg.id === 'q6' ? 'pg-final' : ('q' + (parseInt(cfg.id.slice(1)) + 1)));
-
   page.innerHTML = `
-    <div class="prog-wrap"><div class="prog-bar" style="width:${cfg.step / STEP_TOTAL * 100}%"></div></div>
+    <div class="prog-wrap"><div class="prog-bar" style="width:${step / STEP_TOTAL * 100}%"></div></div>
     <div class="hdr">
-      <div><div class="hdr-title">${cfg.title}, Step ${cfg.step} of ${STEP_TOTAL}</div></div>
-      <div class="steps">${stepsHtml(cfg.step, STEP_TOTAL)}</div>
+      <div><div class="hdr-title">${cfg.title}, Step ${step} of ${STEP_TOTAL}</div></div>
+      <div class="steps">${stepsHtml(step, STEP_TOTAL)}</div>
     </div>
     <div class="content">
       <div class="q-box">${cfg.intro}</div>
@@ -674,7 +816,7 @@ function buildTaskPage(cfg) {
       <div class="ctr">
         <span class="ctr-lbl">Placed</span>
         <span class="ctr-num" id="cn_${cfg.id}">0</span>
-        <span class="ctr-lbl">/ 20</span>
+        <span class="ctr-lbl">/ ${TOTAL}</span>
         <div class="ctr-bar-bg"><div class="ctr-bar" id="cb_${cfg.id}" style="width:0%"></div></div>
         <span class="ctr-done" id="cd_${cfg.id}" style="visibility:hidden">&#10003; Complete</span>
       </div>
@@ -685,15 +827,31 @@ function buildTaskPage(cfg) {
         <input type="number" id="extra-${cfg.id}" placeholder="${cfg.extra.placeholder || ''}">
       </div>` : ''}
       <div class="nav">
-        <button class="btn-s" onclick="goto('${cfg.prev}')">&larr; Back</button>
-        <button class="btn-p" onclick="goto('${nextId}')">Next &rarr;</button>
+        <button class="btn-s" type="button" onclick="goBack()">&larr; Back</button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="nav-note" id="note_${cfg.id}"></span>
+          <button class="btn-p" type="button" id="next_${cfg.id}" onclick="goNext()">Next &rarr;</button>
+        </div>
       </div>
     </div>
   `;
   document.body.insertBefore(page, document.getElementById('pg-done'));
   buildBins(cfg.id);
   setupFakeScrollbar(cfg.id);
-  window.addEventListener('resize', () => syncFakeScrollbar(cfg.id));
+}
+
+/* pg-about and pg-impact live in the markup, they only need their step
+   number, progress bar and dots filled in from the flow. */
+function decorateStaticPage(entry) {
+  const page = document.getElementById(entry.id);
+  if (!page) return;
+  const step = STEP_OF[entry.id];
+  const bar  = page.querySelector('.prog-bar');
+  const ttl  = page.querySelector('.hdr-title');
+  const dots = page.querySelector('.steps');
+  if (bar)  bar.style.width = (step / STEP_TOTAL * 100) + '%';
+  if (ttl)  ttl.textContent = (entry.title || ttl.textContent) + ', Step ' + step + ' of ' + STEP_TOTAL;
+  if (dots) dots.innerHTML = stepsHtml(step, STEP_TOTAL);
 }
 
 function syncFakeScrollbar(id) {
@@ -748,24 +906,25 @@ function setupFakeScrollbar(id) {
 }
 
 function buildFinalPage() {
+  const step = STEP_OF['pg-final'];
   const page = el('div', 'page');
   page.id = 'pg-final';
   page.innerHTML = `
-    <div class="prog-wrap"><div class="prog-bar" style="width:100%"></div></div>
+    <div class="prog-wrap"><div class="prog-bar" style="width:${step / STEP_TOTAL * 100}%"></div></div>
     <div class="hdr">
-      <div><div class="hdr-title">Almost done, Step 9 of ${STEP_TOTAL}</div></div>
-      <div class="steps">${stepsHtml(9, STEP_TOTAL)}</div>
+      <div><div class="hdr-title">Almost done, Step ${step} of ${STEP_TOTAL}</div></div>
+      <div class="steps">${stepsHtml(step, STEP_TOTAL)}</div>
     </div>
     <div class="content">
       <div class="card">
         <h2>Anything you would like to add?</h2>
         <div class="field">
-          <textarea id="f-comment" placeholder=""></textarea>
+          <textarea id="f-comment" placeholder="Optional. Reasoning, caveats, or anything you think we should know."></textarea>
         </div>
       </div>
       <div class="nav">
-        <button class="btn-s" onclick="goto('q6')">&larr; Back</button>
-        <button class="btn-p" id="submit-btn" onclick="submitResponse()">Submit &rarr;</button>
+        <button class="btn-s" type="button" onclick="goBack()">&larr; Back</button>
+        <button class="btn-p" type="button" id="submit-btn" onclick="submitResponse()">Submit &rarr;</button>
       </div>
     </div>
   `;
@@ -773,10 +932,18 @@ function buildFinalPage() {
 }
 
 // ── Submit ──────────────────────────────────────────────────────────────
+function modalBin(stones, id) {
+  const arr = (stones && stones[id]) || [];
+  if (!arr.length || !TASKS_BY_ID[id]) return '';
+  const max = Math.max(...arr);
+  if (max <= 0) return '';
+  return TASKS_BY_ID[id].bins[arr.indexOf(max)];
+}
+
 async function submitResponse() {
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.textContent = 'Saving\u2026';
+  btn.textContent = 'Saving…';
 
   const roleRadio = document.querySelector('input[name="role"]:checked');
   const role = roleRadio ? roleRadio.value : 'academic';
@@ -784,10 +951,10 @@ async function submitResponse() {
 
   const extra = {};
   TASKS.forEach(t => {
-    if (t.extra) {
-      const v = document.getElementById('extra-' + t.id).value;
-      extra[t.extra.id] = v === '' ? null : Number(v);
-    }
+    if (!t.extra) return;
+    const input = document.getElementById('extra-' + t.id);
+    const v = input ? input.value : '';
+    extra[t.extra.id] = v === '' ? null : Number(v);
   });
 
   const resp = {
@@ -811,17 +978,15 @@ async function submitResponse() {
   } catch(e) { console.error(e); }
 
   // Show the confirmation screen immediately, the local copy is already
-  // safe in localStorage. The network saves (Apps Script, formsubmit)
-  // keep running in the background and we update the status once they
-  // are done, rather than making the person stare at "Saving..." for
-  // however long Apps Script takes to wake up (often several seconds).
+  // safe in localStorage. The network saves keep running in the
+  // background and we update the status once they are done.
   renderDonePending(resp);
   goto('pg-done');
   btn.disabled = false;
-  btn.textContent = 'Submit \u2192';
+  btn.textContent = 'Submit →';
 
   const hasWebhook = !!CONFIG.WEBHOOK_URL;
-  const hasEmail = !!CONFIG.FORMSUBMIT_EMAIL;
+  const hasEmail   = !!CONFIG.FORMSUBMIT_EMAIL;
 
   const sendWebhook = async () => {
     if (!hasWebhook) return false;
@@ -845,22 +1010,20 @@ async function submitResponse() {
   const sendEmail = async () => {
     if (!hasEmail) return false;
     try {
-      const modal = id => {
-        const arr = resp.stones[id];
-        const idx = arr.indexOf(Math.max(...arr));
-        return TASKS_BY_ID[id].bins[idx];
+      const body = {
+        _subject: 'New prior response from ' + resp.name,
+        name: resp.name, role: resp.role, affiliation: resp.affiliation,
+        comment: resp.comment,
+        full_response_json: JSON.stringify(resp)
       };
+      // one "<id>_modal" field per question actually in the survey
+      TASKS.forEach(t => { body[t.id + '_modal'] = modalBin(resp.stones, t.id); });
+      Object.keys(resp.extra).forEach(k => { body[k] = resp.extra[k]; });
+
       const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.FORMSUBMIT_EMAIL), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          _subject: 'New prior response from ' + resp.name,
-          name: resp.name, role: resp.role, affiliation: resp.affiliation,
-          q1_modal: modal('q1'), q2_modal: modal('q2'), q3_modal: modal('q3'),
-          q4_modal: modal('q4'), q5_modal: modal('q5'), q6_modal: modal('q6'),
-          comment: resp.comment,
-          full_response_json: JSON.stringify(resp)
-        })
+        body: JSON.stringify(body)
       });
       // formsubmit answers 200 OK even the first time, when it has not
       // actually relayed anything yet and instead sent an activation
@@ -879,12 +1042,7 @@ async function submitResponse() {
   };
 
   const [webhookSent, emailOk] = await Promise.all([sendWebhook(), sendEmail()]);
-  const savedRemotely = webhookSent || emailOk;
-  const configured = hasWebhook || hasEmail;
-
-  // only touch the status box, the rest of the done page (and any page
-  // the person may have already navigated to) is left alone
-  updateDoneStatus(resp, savedRemotely, configured);
+  updateDoneStatus(resp, webhookSent || emailOk, hasWebhook || hasEmail);
 }
 
 function renderDonePending(resp) {
@@ -917,7 +1075,7 @@ function updateDoneStatus(resp, savedRemotely, configured) {
 function renderDoneSummary(resp) {
   const el2 = document.getElementById('done-summary');
   el2.innerHTML = TASKS.map(t => {
-    const stones = resp.stones[t.id];
+    const stones = resp.stones[t.id] || [];
     const rows = t.bins.map((bin, bi) => {
       if (!stones[bi]) return '';
       const pct = stones[bi] / TOTAL * 100;
@@ -945,15 +1103,18 @@ function dlOne(id) {
 function newResponse() {
   ST = {};
   TASKS.forEach(t => ST[t.id] = new Array(t.bins.length).fill(0));
-  document.getElementById('f-name').value  = '';
-  document.getElementById('f-affil').value = '';
+  ['f-name','f-affil','f-comment','f-role-other'].forEach(id => {
+    const n = document.getElementById(id);
+    if (n) n.value = '';
+  });
   document.getElementById('f-consent').checked = false;
-  document.getElementById('f-comment').value = '';
-  document.getElementById('f-role-other').value = '';
   document.getElementById('role-academic').checked = true;
   toggleOtherRole();
   TASKS.forEach(t => {
-    if (t.extra) document.getElementById('extra-' + t.id).value = '';
+    if (t.extra) {
+      const n = document.getElementById('extra-' + t.id);
+      if (n) n.value = '';
+    }
     syncTask(t.id);
   });
   goto('pg-welcome');
@@ -977,7 +1138,7 @@ function checkAdmin() {
 
 // ── Admin render ────────────────────────────────────────────────────────
 function load() {
-  try { return JSON.parse(localStorage.getItem('fz_prior') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('fz_prior') || '[]'); } catch (e) { return []; }
 }
 
 function badgeClass(role) {
@@ -996,7 +1157,7 @@ function renderAdmin() {
   }
 
   const agg = TASKS.map(t =>
-    t.bins.map((_, bi) => resps.reduce((s, r) => s + ((r.stones[t.id] && r.stones[t.id][bi]) || 0), 0))
+    t.bins.map((_, bi) => resps.reduce((s, r) => s + ((r.stones && r.stones[t.id] && r.stones[t.id][bi]) || 0), 0))
   );
   const aggT = agg.map(a => a.reduce((s, v) => s + v, 0) || 1);
 
@@ -1016,25 +1177,16 @@ function renderAdmin() {
       }).join('')}
     </div>`).join('');
 
+  const headCells = TASKS.map(t => `<th>${t.short || t.id} modal</th>`).join('');
+
   const tableRows = resps.slice().reverse().map(r => {
-    const modal = id => {
-      const arr = (r.stones && r.stones[id]) || [];
-      if (!arr.length) return '';
-      const idx = arr.indexOf(Math.max(...arr));
-      return TASKS_BY_ID[id].bins[idx];
-    };
     const when = new Date(r.ts).toLocaleString('en-GB', {
       day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
     });
     return `<tr>
       <td>${r.name}</td>
       <td><span class="badge ${badgeClass(r.role)}">${r.role === 'other' && r.roleOther ? r.roleOther : r.role}</span></td>
-      <td>${modal('q1')}</td>
-      <td>${modal('q2')}</td>
-      <td>${modal('q3')}</td>
-      <td>${modal('q4')}</td>
-      <td>${modal('q5')}</td>
-      <td>${modal('q6')}</td>
+      ${TASKS.map(t => `<td>${modalBin(r.stones, t.id)}</td>`).join('')}
       <td style="color:var(--muted)">${when}</td>
     </tr>`;
   }).join('');
@@ -1066,34 +1218,42 @@ function renderAdmin() {
     </div>
     <div class="card">
       <h2 style="margin-bottom:10px">Individual responses</h2>
-      <table>
-        <thead><tr>
-          <th>Respondent</th><th>Role</th>
-          <th>Q1 modal</th><th>Q2 modal</th><th>Q3 modal</th><th>Q4 modal</th><th>Q5 modal</th><th>Q6 modal</th><th>Time</th>
-        </tr></thead>
-        <tbody>${tableRows}</tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Respondent</th><th>Role</th>${headCells}<th>Time</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
     </div>`;
 }
 
 // ── Export ──────────────────────────────────────────────────────────────
 function dlJSON() {
-  const d = load();
-  dl(new Blob([JSON.stringify(d, null, 2)], {type:'application/json'}),
+  dl(new Blob([JSON.stringify(load(), null, 2)], {type:'application/json'}),
      'fz_prior_elicitation.json');
+}
+
+function csvCell(v) {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
 function dlCSV() {
   const d = load();
   if (!d.length) return;
-  const h = ['id','timestamp','name','affiliation','role','roleOther','consent','comment',
-    'q3_min_effect','q4_min_effect',
-    ...TASKS.flatMap(t => t.bins.map((_, i) => t.id + '_bin' + i))];
+  const extraKeys = TASKS.filter(t => t.extra).map(t => t.extra.id);
+  const header = ['id','timestamp','name','affiliation','role','roleOther','consent','comment']
+    .concat(extraKeys)
+    .concat(TASKS.flatMap(t => t.bins.map((_, i) => t.id + '_bin' + i)));
   const rows = d.map(r =>
-    [r.id, r.ts, `"${r.name}"`, `"${r.affiliation||''}"`, r.role, `"${r.roleOther||''}"`, r.consent, `"${(r.comment||'').replace(/"/g,'""')}"`,
-     (r.extra && r.extra.q3_min != null ? r.extra.q3_min : ''), (r.extra && r.extra.q4_min != null ? r.extra.q4_min : ''),
-     ...TASKS.flatMap(t => (r.stones[t.id] || t.bins.map(()=>0)))]);
-  dl(new Blob([[h,...rows].map(r=>r.join(',')).join('\n')],{type:'text/csv'}),
+    [r.id, r.ts, r.name, r.affiliation || '', r.role, r.roleOther || '', r.consent, r.comment || '']
+      .concat(extraKeys.map(k => (r.extra && r.extra[k] != null ? r.extra[k] : '')))
+      .concat(TASKS.flatMap(t => (r.stones && r.stones[t.id]) || t.bins.map(() => 0)))
+      .map(csvCell)
+  );
+  dl(new Blob([[header.map(csvCell), ...rows].map(r => r.join(',')).join('\n')], {type:'text/csv'}),
      'fz_prior_elicitation.csv');
 }
 
@@ -1120,10 +1280,25 @@ function el(tag, cls) {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────
-TASKS.forEach(cfg => buildTaskPage(cfg));
-document.getElementById('steps-impact').innerHTML = stepsHtml(4, STEP_TOTAL);
-buildFinalPage();
-if (window.location.hash === '#admin') { openModal(); }
+SURVEY_FLOW.forEach(entry => {
+  if (entry.kind === 'task') {
+    if (!TASKS_BY_ID[entry.id]) { console.error('SURVEY_FLOW references unknown task "' + entry.id + '"'); return; }
+    buildTaskPage(TASKS_BY_ID[entry.id]);
+  } else if (entry.id === 'pg-final') {
+    buildFinalPage();
+  } else {
+    decorateStaticPage(entry);
+  }
+});
+
+TASKS.forEach(t => syncTask(t.id));
+toggleOtherRole();
+
+window.addEventListener('resize', () => {
+  if (TASKS_BY_ID[currentPage]) syncFakeScrollbar(currentPage);
+});
+
+if (window.location.hash === '#admin') openModal();
 </script>
 </body>
 </html>
